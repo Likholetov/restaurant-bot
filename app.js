@@ -8,7 +8,6 @@ const config = require('./config')
 const mealController = require('./controllers/mealController')
 const orderController = require('./controllers/orderController')
 
-
 //подключаем базу данных
 mongoose.connect(config.DB_URL, {
     useNewUrlParser: true
@@ -24,9 +23,6 @@ const bot = new TelegramBot(config.TOKEN, {
 //обработка команды /start
 bot.onText(/\/start/, async msg => {
     const text = `Здравствуйте, ${msg.from.first_name}\nВыберите команду для начала работы:`
-    //let keyboard = await mealController.inlineMealTypesKeyboard()
-
-    //bot.sendMessage(msg.chat.id, text, keyboard)
 
     bot.sendMessage(msg.chat.id, text, {
         reply_markup: {
@@ -58,7 +54,6 @@ bot.on('callback_query', async query => {
     let data
 
     try {
-        console.log(query.data)
         data = JSON.parse(query.data)
     } catch (e) {
         throw new Error('Data is not an object')
