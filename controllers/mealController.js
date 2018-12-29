@@ -29,10 +29,8 @@ class MealController {
 
 
       types = {
-        reply_markup: {
           inline_keyboard: types
         }
-      }
       return types
     }
     

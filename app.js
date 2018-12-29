@@ -51,6 +51,8 @@ bot.onText(/\/start/, async msg => {
 //обработка инлайн клавиатуры
 bot.on('callback_query', async query => {
     const userId = query.from.id
+    const messageId = query.message.message_id
+    console.log(messageId)
     let data
 
     try {
@@ -62,7 +64,7 @@ bot.on('callback_query', async query => {
     switch(data.query){
         case "menu":
             let keyboard = await mealController.inlineMealTypesKeyboard()
-            bot.sendMessage(userId, "Меню ресторана:", keyboard)
+            bot.editMessageText('Наше меню:', {chat_id:userId, message_id:messageId, reply_markup:keyboard})
             break
     }
 })
