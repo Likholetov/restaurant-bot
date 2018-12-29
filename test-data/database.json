@@ -1,0 +1,58 @@
+{
+  "meals": [
+    {
+      "name": "Спагетти Але Скольо",
+      "uuid": "m111",
+      "type": "паста",
+      "price": 770,
+      "weight": 465,
+      "ingredients": ["паста", "креветки красные", "кальмары", "мидии вонголи", "помидоры", "масло оливковое", "масло сливочное", "чеснок", "петрушка", "перец"],
+      "img": "http://www.bocconcino.ru/upload/resize_cache/iblock/f06/610_610_0/f066506b464e64081702eea2e6147ef5.jpg"
+    },
+    {
+      "name": "Тальятелле с лососем",
+      "uuid": "m112",
+      "type": "паста",
+      "price": 900,
+      "weight": 340,
+      "ingredients": ["паста", "лосось слабосолёный", "лосось копчёный", "лук репчатый", "масло чесночное", "масло сливочное", "соус паста", "пармезан", "перец", "базилик", "помидоры"],
+      "img": "http://www.bocconcino.ru/upload/resize_cache/iblock/739/610_610_0/7393152a4e4c9434950f87c1cac9a4fd.jpg"
+    },
+    {
+      "name": "Салат с утиной грудкой",
+      "uuid": "m113",
+      "type": "салат",
+      "price": 500,
+      "weight": 120,
+      "ingredients": ["шпинат", "рукола", "латук", "помидоры сушеные", "заправка лимонная", "соус апельсин-горчица", "пармезан", "утиная грудка вяленая", "бальзамик выпаренный"],
+      "img": "http://www.bocconcino.ru/upload/resize_cache/iblock/8d6/610_610_0/8d629a400afdd1309861362247d40f75.jpg"
+    },
+    {
+      "name": "Салат с крабом",
+      "uuid": "m114",
+      "type": "салат",
+      "price": 1300,
+      "weight": 295,
+      "ingredients": ["помидоры черри", "огурцы", "мясо краба", "авокадо", "оливкового масла"],
+      "img": "http://www.bocconcino.ru/upload/iblock/c78/c78fb60983cccf96a5d4af8cb6c8ffa4.jpg"
+    },
+    {
+      "name": "Суп из белых грибов",
+      "uuid": "m115",
+      "type": "суп",
+      "price": 500,
+      "weight": 450,
+      "ingredients": ["белые грибы", "картофель", "домашняя лапша"],
+      "img": "http://www.bocconcino.ru/upload/resize_cache/iblock/9cf/610_610_0/9cf830a0acadcf077d323a7a488d0963.jpg"
+    },
+    {
+      "name": "Суп из мидий",
+      "uuid": "m116",
+      "type": "суп",
+      "price": 450,
+      "weight": 450,
+      "ingredients": ["мидии коцце", "помидор конкассе"],
+      "img": "http://www.bocconcino.ru/upload/resize_cache/iblock/cde/610_610_0/cdef326be503408e925fd7d55e70d12f.jpg"
+    }
+  ]
+}
