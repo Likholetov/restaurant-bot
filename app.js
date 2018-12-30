@@ -50,9 +50,9 @@ bot.onText(/\/start/, async msg => {
 
 //обработка инлайн клавиатуры
 bot.on('callback_query', async query => {
-    const userId = query.from.id
+    const chatId = query.from.id
     const messageId = query.message.message_id
-    console.log(messageId)
+    //console.log(messageId)
     let data
 
     try {
@@ -64,7 +64,16 @@ bot.on('callback_query', async query => {
     switch(data.query){
         case "menu":
             let keyboard = await mealController.inlineMealTypesKeyboard()
-            bot.editMessageText('Наше меню:', {chat_id:userId, message_id:messageId, reply_markup:keyboard})
+            bot.editMessageText('Наше меню:', {chat_id:chatId, message_id:messageId, reply_markup:keyboard})
+            break
+        default:
+            console.log(data.query)
+            const meals = await mealController.findMealsByTypeQuery(data.query)
+            console.log(meals)
+            meals.map(m => {
+                const text = `${m.name}\nЦена: ${m.price} руб.` 
+                bot.sendPhoto(chatId, m.img, {caption: text})
+            })
             break
     }
 })

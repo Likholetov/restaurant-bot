@@ -7,12 +7,17 @@ const Meal = mongoose.model('meals')
 
 class MealController {
 
-    //Поиск блюд по запросу
+    // Поиск блюд по запросу
     findMealsByQuery(query) {
       return Meal.find(query)
     }
 
-    //Формирование клавиатуры с типами блюд
+    // Поиск блюд по типу
+    findMealsByTypeQuery(query) {
+      return Meal.find({type: query})
+    }
+
+    // Формирование клавиатуры с типами блюд
     async inlineMealTypesKeyboard() {
       const meals = await Meal.find({})
       let types = []
