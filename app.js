@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const geolib = require('geolib')
 
 const config = require('./config')
+const keyboard = require('./keyboard')
 
 // controllers
 const mealController = require('./controllers/mealController')
@@ -23,32 +24,10 @@ const bot = new TelegramBot(config.TOKEN, {
 // текст для главного меню
 const mainText = "Добро пожаловать в ресторан 'Маленькая Италия'"
 
-// Клавиатура для главного меню
-const mainKeyboard = {
-    inline_keyboard: [
-        [
-            {
-                text: 'меню',
-                callback_data: JSON.stringify({
-                    query: 'menu'
-                })
-            }
-        ],
-        [
-            {
-                text: 'интерьер',
-                callback_data: JSON.stringify({
-                    query: 'interier'
-                })
-            }
-        ]
-    ]
-}
-
 // обработка команды /start
 bot.onText(/\/start/, async msg => {
     bot.sendMessage(msg.chat.id, mainText, {
-        reply_markup: mainKeyboard
+        reply_markup: keyboard.mainKeyboard
     })    
 })
 
@@ -66,8 +45,8 @@ bot.on('callback_query', async query => {
 
     switch(data.query){
         case "menu":
-            let keyboard = await mealController.inlineMealTypesKeyboard()
-            bot.editMessageText('Наше меню:', {chat_id:chatId, message_id:messageId, reply_markup:keyboard})
+            const keyboardMenu = await mealController.inlineMealTypesKeyboard()
+            bot.editMessageText('Наше меню:', {chat_id:chatId, message_id:messageId, reply_markup:keyboardMenu})
             break
         case "more":
             const meal = await mealController.findMealByUuid(data.mealUuid)
@@ -92,7 +71,7 @@ bot.on('callback_query', async query => {
             console.log(result)
             break
         case "back":
-            bot.editMessageText(mainText, {chat_id:chatId, message_id:messageId, reply_markup:mainKeyboard})
+            bot.editMessageText(mainText, {chat_id:chatId, message_id:messageId, reply_markup:keyboard.mainKeyboard})
             break
         default:
             const meals = await mealController.findMealsByTypeQuery(data.query)
