@@ -20,31 +20,35 @@ const bot = new TelegramBot(config.TOKEN, {
     polling: true
 })
 
+// текст для главного меню
+const mainText = "Добро пожаловать в ресторан 'Маленькая Италия'"
+
+// Клавиатура для главного меню
+const mainKeyboard = {
+    inline_keyboard: [
+        [
+            {
+                text: 'меню',
+                callback_data: JSON.stringify({
+                    query: 'menu'
+                })
+            }
+        ],
+        [
+            {
+                text: 'интерьер',
+                callback_data: JSON.stringify({
+                    query: 'interier'
+                })
+            }
+        ]
+    ]
+}
+
 // обработка команды /start
 bot.onText(/\/start/, async msg => {
-    const text = `Здравствуйте, ${msg.from.first_name}\nВыберите команду для начала работы:`
-
-    bot.sendMessage(msg.chat.id, text, {
-        reply_markup: {
-            inline_keyboard: [
-                [
-                    {
-                        text: 'меню',
-                        callback_data: JSON.stringify({
-                            query: 'menu'
-                        })
-                    }
-                ],
-                [
-                    {
-                        text: 'интерьер',
-                        callback_data: JSON.stringify({
-                            query: 'interier'
-                        })
-                    }
-                ]
-            ]
-        }
+    bot.sendMessage(msg.chat.id, mainText, {
+        reply_markup: mainKeyboard
     })    
 })
 
@@ -86,6 +90,9 @@ bot.on('callback_query', async query => {
             result = await orderController.addMeal(chatId, query.id, data.mealUuid)
             bot.answerCallbackQuery(result)
             console.log(result)
+            break
+        case "back":
+            bot.editMessageText(mainText, {chat_id:chatId, message_id:messageId, reply_markup:mainKeyboard})
             break
         default:
             const meals = await mealController.findMealsByTypeQuery(data.query)

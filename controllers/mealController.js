@@ -24,6 +24,7 @@ class MealController {
 
       meals.map(m => types.push(m.type))
       types = _.uniq(types);
+      
 
       types = types.map(t => [
         { text: t, 
@@ -32,6 +33,12 @@ class MealController {
         })}
       ])
 
+      types.push([
+        { text: 'назад', 
+          callback_data: JSON.stringify({
+          query: 'back'
+        })}
+      ])
 
       types = {
           inline_keyboard: types
