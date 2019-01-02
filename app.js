@@ -4,23 +4,23 @@ const geolib = require('geolib')
 
 const config = require('./config')
 
-//controllers
+// controllers
 const mealController = require('./controllers/mealController')
 const orderController = require('./controllers/orderController')
 
-//подключаем базу данных
+// подключаем базу данных
 mongoose.connect(config.DB_URL, {
     useNewUrlParser: true
 })
     .then(() => console.log('MongoDB connected'))
     .catch((err) => console.log(err))
 
-//создаем объект бот
+// создаем объект бот
 const bot = new TelegramBot(config.TOKEN, {
     polling: true
 })
 
-//обработка команды /start
+// обработка команды /start
 bot.onText(/\/start/, async msg => {
     const text = `Здравствуйте, ${msg.from.first_name}\nВыберите команду для начала работы:`
 
@@ -48,7 +48,7 @@ bot.onText(/\/start/, async msg => {
     })    
 })
 
-//обработка инлайн клавиатуры
+// обработка инлайн клавиатуры
 bot.on('callback_query', async query => {
     const chatId = query.from.id
     const messageId = query.message.message_id
@@ -83,7 +83,9 @@ bot.on('callback_query', async query => {
             bot.editMessageCaption(`${meal.name}\nЦена: ${meal.price} руб.\nИнгридиенты: ${meal.ingredients.join(', ')}\nВес: ${meal.weight} г.`, {chat_id:chatId, message_id:messageId, reply_markup:orderKeyboard})
             break
         case "order":
-            console.log("Заказать " + data.mealUuid)
+            result = await orderController.addMeal(chatId, query.id, data.mealUuid)
+            bot.answerCallbackQuery(result)
+            console.log(result)
             break
         default:
             const meals = await mealController.findMealsByTypeQuery(data.query)
