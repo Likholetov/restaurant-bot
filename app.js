@@ -52,7 +52,6 @@ bot.onText(/\/start/, async msg => {
 bot.on('callback_query', async query => {
     const chatId = query.from.id
     const messageId = query.message.message_id
-    //console.log(messageId)
     let data
 
     try {
@@ -66,13 +65,55 @@ bot.on('callback_query', async query => {
             let keyboard = await mealController.inlineMealTypesKeyboard()
             bot.editMessageText('Наше меню:', {chat_id:chatId, message_id:messageId, reply_markup:keyboard})
             break
+        case "more":
+            const meal = await mealController.findMealByUuid(data.mealUuid)
+            const orderKeyboard = {
+                inline_keyboard: [
+                    [
+                        {
+                            text: 'Заказать',
+                            callback_data: JSON.stringify({
+                                query: 'order',
+                                mealUuid: meal.uuid
+                            })
+                        }
+                    ]
+                ]
+            }
+            bot.editMessageCaption(`${meal.name}\nЦена: ${meal.price} руб.\nИнгридиенты: ${meal.ingredients.join(', ')}\nВес: ${meal.weight} г.`, {chat_id:chatId, message_id:messageId, reply_markup:orderKeyboard})
+            break
+        case "order":
+            console.log("Заказать " + data.mealUuid)
+            break
         default:
-            console.log(data.query)
             const meals = await mealController.findMealsByTypeQuery(data.query)
-            console.log(meals)
             meals.map(m => {
                 const text = `${m.name}\nЦена: ${m.price} руб.` 
-                bot.sendPhoto(chatId, m.img, {caption: text})
+                bot.sendPhoto(chatId, m.img, {
+                    caption: text,
+                    reply_markup: {
+                        inline_keyboard: [
+                            [
+                                {
+                                    text: 'Подробнее',
+                                    callback_data: JSON.stringify({
+                                        query: 'more',
+                                        mealUuid: m.uuid
+                                    })
+                                }
+                            ],
+                            [
+                                {
+                                    text: 'Заказать',
+                                    callback_data: JSON.stringify({
+                                        query: 'order',
+                                        mealUuid: m.uuid
+                                    })
+                                }
+                            ]
+                        ]
+                    }
+                })
             })
             break
     }

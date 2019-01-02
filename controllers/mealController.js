@@ -7,9 +7,9 @@ const Meal = mongoose.model('meals')
 
 class MealController {
 
-    // Поиск блюд по запросу
-    findMealsByQuery(query) {
-      return Meal.find(query)
+    // Поиск блюда по uuid
+    findMealByUuid(query) {
+      return Meal.findOne({uuid: query})
     }
 
     // Поиск блюд по типу
