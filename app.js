@@ -48,6 +48,51 @@ bot.on('callback_query', async query => {
             const keyboardMenu = await mealController.inlineMealTypesKeyboard()
             bot.editMessageText('Наше меню:', {chat_id:chatId, message_id:messageId, reply_markup:keyboardMenu})
             break
+        case "yourOrder":
+            const order = await orderController.findOrderById(chatId)
+            if(order){
+                let sum = 0
+                order.meals.map(m => {
+                    sum = sum + m.price
+                })
+                bot.sendMessage(chatId, `Общая стоимость вашего заказа\nсоставляет: ${sum} руб.`, {reply_markup:keyboard.orderKeyboard})
+            } else {
+                bot.sendMessage(chatId, "Вы еще ничего не заказали")
+            }
+            break
+        case "applyOrder":
+            
+            break
+        case "displayOrder":
+            bot.sendMessage(chatId, "Ваш заказ:")
+
+            const displayOrder = await orderController.findOrderById(chatId)
+
+            displayOrder.meals.map(m => {
+                bot.sendMessage(chatId, m.name + " - " + m.price + " руб.", {reply_markup:{
+                    inline_keyboard: [
+                        [
+                            {
+                                text: 'Удалить',
+                                callback_data: JSON.stringify({
+                                    query: 'remove',
+                                    mealUuid: m.uuid
+                                })
+                            }
+                        ]
+                    ]
+                }})
+            })
+            break
+        case "remove":
+            
+            break
+        case "interier":
+            
+            break
+        case "contacts":
+            
+            break
         case "more":
             const meal = await mealController.findMealByUuid(data.mealUuid)
             const orderKeyboard = {
