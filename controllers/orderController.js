@@ -32,19 +32,19 @@ class OrderController {
         return result
     }
 
-    /*async displayOrder(userId){
+    async removeMeal(userId, mealUuid){
         const order = await Order.findOne({telegramId: userId})
-        let result = 'Вы еще ничего не заказали'
-        if(order) {
-            let meals = order.meals
-            if(meals.length) {
-                    result = order
-                }
-            return result              
-          } else {
-            return result 
-          }
-    }*/
+
+        for (let index = 0; index < order.meals.length; index++) {
+            if(order.meals[index].uuid == mealUuid)
+            {
+                order.meals.splice(index, 1)
+                break
+            }
+        }
+
+        order.save()
+    }
 
 
     findOrderById(userId){

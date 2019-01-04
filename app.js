@@ -51,11 +51,15 @@ bot.on('callback_query', async query => {
         case "yourOrder":
             const order = await orderController.findOrderById(chatId)
             if(order){
-                let sum = 0
-                order.meals.map(m => {
-                    sum = sum + m.price
-                })
-                bot.sendMessage(chatId, `Общая стоимость вашего заказа\nсоставляет: ${sum} руб.`, {reply_markup:keyboard.orderKeyboard})
+                if (order.meals.length > 0) {
+                    let sum = 0
+                    order.meals.map(m => {
+                        sum = sum + m.price
+                    })
+                    bot.sendMessage(chatId, `Общая стоимость вашего заказа\nсоставляет: ${sum} руб.`, {reply_markup:keyboard.orderKeyboard})
+                } else {
+                    bot.sendMessage(chatId, "Вы еще ничего не заказали")
+                }
             } else {
                 bot.sendMessage(chatId, "Вы еще ничего не заказали")
             }
@@ -64,10 +68,9 @@ bot.on('callback_query', async query => {
             
             break
         case "displayOrder":
-            bot.sendMessage(chatId, "Ваш заказ:")
-
             const displayOrder = await orderController.findOrderById(chatId)
-
+            
+            bot.sendMessage(chatId, "Ваш заказ:")
             displayOrder.meals.map(m => {
                 bot.sendMessage(chatId, m.name + " - " + m.price + " руб.", {reply_markup:{
                     inline_keyboard: [
@@ -83,12 +86,21 @@ bot.on('callback_query', async query => {
                     ]
                 }})
             })
+
             break
         case "remove":
-            
+            orderController.removeMeal(chatId, data.mealUuid)
+            bot.deleteMessage(chatId, messageId)
             break
         case "interier":
-            
+            const images = ["https://reston.com.ua/images/img/obzor_spezzo_svyatoshino_1.jpg", 
+                            "https://reston.com.ua/images/img/obzor_spezzo_svyatoshino_2.jpg", 
+                            "https://reston.com.ua/images/img/obzor_spezzo_svyatoshino_5.jpg", 
+                            "https://reston.com.ua/images/img/obzor_spezzo_svyatoshino_4.jpg"]
+
+            images.map(i => {
+                bot.sendPhoto(chatId, i)
+            })
             break
         case "contacts":
             
@@ -113,7 +125,6 @@ bot.on('callback_query', async query => {
         case "order":
             result = await orderController.addMeal(chatId, query.id, data.mealUuid)
             bot.answerCallbackQuery(result)
-            console.log(result)
             break
         case "back":
             bot.editMessageText(mainText, {chat_id:chatId, message_id:messageId, reply_markup:keyboard.mainKeyboard})
