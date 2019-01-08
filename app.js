@@ -31,6 +31,20 @@ bot.onText(/\/start/, async msg => {
     })    
 })
 
+
+bot.on('message', async msg => {
+    console.log('Working', msg.from.first_name)
+
+    const chatId = msg.chat.id
+
+    if(msg.location){
+        const text = await orderController.applyOrder(chatId, msg.location)
+        bot.sendMessage(chatId, text)
+    }
+
+})
+
+
 // обработка инлайн клавиатуры
 bot.on('callback_query', async query => {
     const chatId = query.from.id
@@ -65,7 +79,18 @@ bot.on('callback_query', async query => {
             }
             break
         case "applyOrder":
-            
+            bot.sendMessage(chatId, "Для подтверждения заказа укажите Ваше местоположение", {reply_markup: {
+                resize_keyboard: true,
+                one_time_keyboard: true,
+                keyboard: [
+                    [
+                        {
+                            text: 'Отправить местоположение',
+                            request_location: true
+                        }
+                    ]
+                ],
+            }})
             break
         case "displayOrder":
             const displayOrder = await orderController.findOrderById(chatId)

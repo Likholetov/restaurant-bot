@@ -50,6 +50,30 @@ class OrderController {
     findOrderById(userId){
         return Order.findOne({telegramId: userId})
     }
+
+    async applyOrder(userId, location){
+        const order = await Order.findOne({telegramId: userId})
+        let msg = "Вы еще ничего не заказали"
+
+        if (order) {
+            if(order.meals.length > 0){
+                if (order.location) {
+                    msg = "Вы уже сообщили свое местоположение, дождитесь, пока с Вами свяжется оператор"
+                    return msg
+                } else {
+                    order.location = location
+                    order.save()
+    
+                    msg = "Местоположение успешно задано, дождитесь, пока с Вами свяжется оператор, чтобы подтвердить заказ"
+                    return msg
+                }
+            } else {
+                return msg
+            }
+        } else {
+            return msg
+        }
+    }
 }
 
 module.exports = new OrderController()

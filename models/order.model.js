@@ -11,6 +11,9 @@ const OrderSchema = new Schema({
     meals: {
         type: [mealSchema],
         default: []
+    },
+    location: {
+        type: Schema.Types.Mixed
     }
 })
 
