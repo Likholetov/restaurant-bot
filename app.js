@@ -1,6 +1,5 @@
 const TelegramBot = require('node-telegram-bot-api')
 const mongoose = require('mongoose')
-const geolib = require('geolib')
 
 const config = require('./config')
 const keyboard = require('./keyboard')
@@ -39,7 +38,14 @@ bot.on('message', async msg => {
 
     if(msg.location){
         const text = await orderController.applyOrder(chatId, msg.location)
-        bot.sendMessage(chatId, text)
+        bot.sendMessage(chatId, text, {reply_markup: {
+            resize_keyboard: true,
+            keyboard: [
+                [
+                    "/start"
+                ]
+            ],
+        }})
     }
 
 })
@@ -128,7 +134,8 @@ bot.on('callback_query', async query => {
             })
             break
         case "contacts":
-            
+            bot.sendMessage(chatId, `Ресторан "Маленькая Италия"\nтелефон:\n+44 20 7499 4510\nоткрыт с 10:00 до 22:00`)
+            bot.sendLocation(chatId, 48.00621141, 37.79709935)
             break
         case "more":
             const meal = await mealController.findMealByUuid(data.mealUuid)

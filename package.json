@@ -24,7 +24,6 @@
   },
   "homepage": "https://github.com/Likholetov/restaurant-bot#readme",
   "dependencies": {
-    "geolib": "^2.0.24",
     "lodash": "^4.17.11",
     "mongoose": "^5.4.1",
     "node-telegram-bot-api": "^0.30.0"
