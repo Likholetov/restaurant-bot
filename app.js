@@ -7,6 +7,7 @@ const keyboard = require('./keyboard')
 // controllers
 const mealController = require('./controllers/mealController')
 const orderController = require('./controllers/orderController')
+const tableController = require('./controllers/tableController')
 
 // подключаем базу данных
 mongoose.connect(config.DB_URL, {
@@ -55,7 +56,26 @@ bot.on('message', async msg => {
 bot.on('callback_query', async query => {
     const chatId = query.from.id
     const messageId = query.message.message_id
-    let data
+    let data, result, message
+
+    const today = new Date()
+    today.setHours(-21,0,0)
+    const tomorrow = new Date(today.getTime() + (24 * 60 * 60 * 1000))
+    const tomorrowPlusOne = new Date(today.getTime() + 2*(24 * 60 * 60 * 1000))
+
+    const monthArr=[
+        'января',
+        'февраля',
+        'марта',
+        'апреля',
+        'мая',
+        'июня',
+        'июля',
+        'августа',
+        'сентября',
+        'ноября',
+        'декабря',
+     ]
 
     try {
         data = JSON.parse(query.data)
@@ -134,7 +154,7 @@ bot.on('callback_query', async query => {
             })
             break
         case "contacts":
-            bot.sendMessage(chatId, `Ресторан "Маленькая Италия"\nтелефон:\n+44 20 7499 4510\nоткрыт с 10:00 до 22:00`)
+            bot.sendMessage(chatId, `Ресторан "Маленькая Италия"\nтелефон:\n+44 20 7499 4510\nоткрыт с 10:00 до 20:00`)
             bot.sendLocation(chatId, 48.00621141, 37.79709935)
             break
         case "more":
@@ -161,36 +181,74 @@ bot.on('callback_query', async query => {
         case "back":
             bot.editMessageText(mainText, {chat_id:chatId, message_id:messageId, reply_markup:keyboard.mainKeyboard})
             break
-        default:
-            const meals = await mealController.findMealsByTypeQuery(data.query)
-            meals.map(m => {
-                const text = `${m.name}\nЦена: ${m.price} руб.` 
-                bot.sendPhoto(chatId, m.img, {
-                    caption: text,
-                    reply_markup: {
-                        inline_keyboard: [
-                            [
-                                {
-                                    text: 'Подробнее',
-                                    callback_data: JSON.stringify({
-                                        query: 'more',
-                                        mealUuid: m.uuid
-                                    })
-                                }
-                            ],
-                            [
-                                {
-                                    text: 'Заказать',
-                                    callback_data: JSON.stringify({
-                                        query: 'order',
-                                        mealUuid: m.uuid
-                                    })
-                                }
-                            ]
-                        ]
-                    }
-                })
-            })
+        case "table":
+            bot.sendMessage(chatId, "Желаете забронировать столик?", {reply_markup:keyboard.tableKeyboard})
             break
+        case "tableTomorrow":
+            result = await tableController.tableSetDate(chatId, tomorrow)
+                
+            if(result == 1){
+                message = "Дата заказа установлена. Выберите время."
+                bot.editMessageText(message, {chat_id:chatId, message_id:messageId, reply_markup:keyboard.timeKeyboard})
+            } else {
+                yourTable = await tableController.findTableById(chatId)
+                message = `Вы уже заказали столик.\n${yourTable.date.getDate()+1} ${monthArr[yourTable.date.getMonth()]} ${yourTable.date.getFullYear()}\n${yourTable.date.getUTCHours()} часов\nЖелаете отменить заказ?`//yourTable.date.getTime()//"Вы уже заказали столик. Желаете отменить заказ?"
+                bot.editMessageText(message, {chat_id:chatId, message_id:messageId, reply_markup:keyboard.tableDeleteKeyboard})
+            }
+            break
+        case "tableAfterTomorrow":
+            result = await tableController.tableSetDate(chatId, tomorrowPlusOne)
+                
+            if(result == 1){
+                message = "Дата заказа установлена. Выберите время."
+                bot.editMessageText(message, {chat_id:chatId, message_id:messageId, reply_markup:keyboard.timeKeyboard})
+            } else {
+                yourTable = await tableController.findTableById(chatId)
+                message = `Вы уже заказали столик.\n${yourTable.date.getDate()+1} ${monthArr[yourTable.date.getMonth()]} ${yourTable.date.getFullYear()}\n${yourTable.date.getUTCHours()} часов\nЖелаете отменить заказ?`//yourTable.date.getTime()//"Вы уже заказали столик. Желаете отменить заказ?"
+                bot.editMessageText(message, {chat_id:chatId, message_id:messageId, reply_markup:keyboard.tableDeleteKeyboard})
+            }
+            break
+        case "deleteTable":
+            tableController.tableDelete(chatId)
+            bot.editMessageText("Бронь отменена.", {chat_id:chatId, message_id:messageId})
+            break
+        default:
+            if (data.query == 10 || data.query == 12 || data.query == 14 || data.query == 16) {
+                result = await tableController.tableSetTime(chatId, data.query)
+                yourTable = await tableController.findTableById(chatId)
+                message = `Столик забронирован`
+                bot.editMessageText(message, {chat_id:chatId, message_id:messageId})
+            } else {
+                const meals = await mealController.findMealsByTypeQuery(data.query)
+                meals.map(m => {
+                    const text = `${m.name}\nЦена: ${m.price} руб.` 
+                    bot.sendPhoto(chatId, m.img, {
+                        caption: text,
+                        reply_markup: {
+                            inline_keyboard: [
+                                [
+                                    {
+                                        text: 'Подробнее',
+                                        callback_data: JSON.stringify({
+                                            query: 'more',
+                                            mealUuid: m.uuid
+                                        })
+                                    }
+                                ],
+                                [
+                                    {
+                                        text: 'Заказать',
+                                        callback_data: JSON.stringify({
+                                            query: 'order',
+                                            mealUuid: m.uuid
+                                        })
+                                    }
+                                ]
+                            ]
+                        }
+                    })
+                })
+            }
+        break
     }
 })
