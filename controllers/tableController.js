@@ -28,7 +28,6 @@ class TableController {
 
     async tableSetTime(userId, tableTime){
         const table = await Table.findOne({telegramId: userId})
-        //console.log(table.date)
         if(table){
             const time = new Date(table.date.getTime() + (tableTime * 60 * 60 * 1000))
             table.date = time

@@ -184,35 +184,28 @@ bot.on('callback_query', async query => {
         case "table":
             bot.sendMessage(chatId, "Желаете забронировать столик?", {reply_markup:keyboard.tableKeyboard})
             break
-        case "tableTomorrow":
-            result = await tableController.tableSetDate(chatId, tomorrow)
-                
-            if(result == 1){
-                message = "Дата заказа установлена. Выберите время."
-                bot.editMessageText(message, {chat_id:chatId, message_id:messageId, reply_markup:keyboard.timeKeyboard})
-            } else {
-                yourTable = await tableController.findTableById(chatId)
-                message = `Вы уже заказали столик.\n${yourTable.date.getDate()+1} ${monthArr[yourTable.date.getMonth()]} ${yourTable.date.getFullYear()}\n${yourTable.date.getUTCHours()} часов\nЖелаете отменить заказ?`//yourTable.date.getTime()//"Вы уже заказали столик. Желаете отменить заказ?"
-                bot.editMessageText(message, {chat_id:chatId, message_id:messageId, reply_markup:keyboard.tableDeleteKeyboard})
-            }
-            break
-        case "tableAfterTomorrow":
-            result = await tableController.tableSetDate(chatId, tomorrowPlusOne)
-                
-            if(result == 1){
-                message = "Дата заказа установлена. Выберите время."
-                bot.editMessageText(message, {chat_id:chatId, message_id:messageId, reply_markup:keyboard.timeKeyboard})
-            } else {
-                yourTable = await tableController.findTableById(chatId)
-                message = `Вы уже заказали столик.\n${yourTable.date.getDate()+1} ${monthArr[yourTable.date.getMonth()]} ${yourTable.date.getFullYear()}\n${yourTable.date.getUTCHours()} часов\nЖелаете отменить заказ?`//yourTable.date.getTime()//"Вы уже заказали столик. Желаете отменить заказ?"
-                bot.editMessageText(message, {chat_id:chatId, message_id:messageId, reply_markup:keyboard.tableDeleteKeyboard})
-            }
-            break
         case "deleteTable":
             tableController.tableDelete(chatId)
             bot.editMessageText("Бронь отменена.", {chat_id:chatId, message_id:messageId})
             break
         default:
+            if (data.query == "tableTomorrow" || "tableAfterTomorrow"){
+                if (data.query == "tableTomorrow"){
+                    result = await tableController.tableSetDate(chatId, tomorrow)
+                } else {
+                    result = await tableController.tableSetDate(chatId, tomorrowPlusOne)
+                }
+
+                if(result == 1){
+                    message = "Дата заказа установлена. Выберите время."
+                    bot.editMessageText(message, {chat_id:chatId, message_id:messageId, reply_markup:keyboard.timeKeyboard})
+                } else {
+                    yourTable = await tableController.findTableById(chatId)
+                    message = `Вы уже заказали столик.\n${yourTable.date.getDate()+1} ${monthArr[yourTable.date.getMonth()]} ${yourTable.date.getFullYear()}\n${yourTable.date.getUTCHours()} часов\nЖелаете отменить заказ?`
+                    bot.editMessageText(message, {chat_id:chatId, message_id:messageId, reply_markup:keyboard.tableDeleteKeyboard})
+                }
+            }
+
             if (data.query == 10 || data.query == 12 || data.query == 14 || data.query == 16) {
                 result = await tableController.tableSetTime(chatId, data.query)
                 yourTable = await tableController.findTableById(chatId)
