@@ -196,7 +196,7 @@ bot.on('callback_query', async query => {
                     result = await tableController.tableSetDate(chatId, tomorrowPlusOne)
                 }
 
-                if(result == 1){
+                if(result){
                     message = "Дата заказа установлена. Выберите время."
                     bot.editMessageText(message, {chat_id:chatId, message_id:messageId, reply_markup:keyboard.timeKeyboard})
                 } else {
