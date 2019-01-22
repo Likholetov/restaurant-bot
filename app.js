@@ -189,7 +189,7 @@ bot.on('callback_query', async query => {
             bot.editMessageText("Бронь отменена.", {chat_id:chatId, message_id:messageId})
             break
         default:
-            if (data.query == "tableTomorrow" || "tableAfterTomorrow"){
+            if (data.query == "tableTomorrow" || data.query == "tableAfterTomorrow"){
                 if (data.query == "tableTomorrow"){
                     result = await tableController.tableSetDate(chatId, tomorrow)
                 } else {
@@ -204,43 +204,43 @@ bot.on('callback_query', async query => {
                     message = `Вы уже заказали столик.\n${yourTable.date.getDate()+1} ${monthArr[yourTable.date.getMonth()]} ${yourTable.date.getFullYear()}\n${yourTable.date.getUTCHours()} часов\nЖелаете отменить заказ?`
                     bot.editMessageText(message, {chat_id:chatId, message_id:messageId, reply_markup:keyboard.tableDeleteKeyboard})
                 }
-            }
-
-            if (data.query == 10 || data.query == 12 || data.query == 14 || data.query == 16) {
-                result = await tableController.tableSetTime(chatId, data.query)
-                yourTable = await tableController.findTableById(chatId)
-                message = `Столик забронирован`
-                bot.editMessageText(message, {chat_id:chatId, message_id:messageId})
             } else {
-                const meals = await mealController.findMealsByTypeQuery(data.query)
-                meals.map(m => {
-                    const text = `${m.name}\nЦена: ${m.price} руб.` 
-                    bot.sendPhoto(chatId, m.img, {
-                        caption: text,
-                        reply_markup: {
-                            inline_keyboard: [
-                                [
-                                    {
-                                        text: 'Подробнее',
-                                        callback_data: JSON.stringify({
-                                            query: 'more',
-                                            mealUuid: m.uuid
-                                        })
-                                    }
-                                ],
-                                [
-                                    {
-                                        text: 'Заказать',
-                                        callback_data: JSON.stringify({
-                                            query: 'order',
-                                            mealUuid: m.uuid
-                                        })
-                                    }
+                if (data.query == 10 || data.query == 12 || data.query == 14 || data.query == 16) {
+                    result = await tableController.tableSetTime(chatId, data.query)
+                    yourTable = await tableController.findTableById(chatId)
+                    message = `Столик забронирован`
+                    bot.editMessageText(message, {chat_id:chatId, message_id:messageId})
+                } else {
+                    const meals = await mealController.findMealsByTypeQuery(data.query)
+                    meals.map(m => {
+                        const text = `${m.name}\nЦена: ${m.price} руб.` 
+                        bot.sendPhoto(chatId, m.img, {
+                            caption: text,
+                            reply_markup: {
+                                inline_keyboard: [
+                                    [
+                                        {
+                                            text: 'Подробнее',
+                                            callback_data: JSON.stringify({
+                                                query: 'more',
+                                                mealUuid: m.uuid
+                                            })
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            text: 'Заказать',
+                                            callback_data: JSON.stringify({
+                                                query: 'order',
+                                                mealUuid: m.uuid
+                                            })
+                                        }
+                                    ]
                                 ]
-                            ]
-                        }
+                            }
+                        })
                     })
-                })
+                }
             }
         break
     }
