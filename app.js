@@ -58,9 +58,13 @@ bot.on('callback_query', async query => {
     const messageId = query.message.message_id
     let data, result, message
 
+    // получение сегодняшней даты
     const today = new Date()
+    // установка времени в 00:00
     today.setHours(-21,0,0)
+    // получение завтрашней даты
     const tomorrow = new Date(today.getTime() + (24 * 60 * 60 * 1000))
+    // получение послезавтрашней даты
     const tomorrowPlusOne = new Date(today.getTime() + 2*(24 * 60 * 60 * 1000))
 
     const monthArr=[
@@ -182,7 +186,7 @@ bot.on('callback_query', async query => {
             bot.editMessageText(mainText, {chat_id:chatId, message_id:messageId, reply_markup:keyboard.mainKeyboard})
             break
         case "table":
-            bot.sendMessage(chatId, "Желаете забронировать столик?", {reply_markup:keyboard.tableKeyboard})
+            bot.editMessageText("Желаете забронировать столик?", {chat_id:chatId, message_id:messageId, reply_markup:keyboard.tableKeyboard})
             break
         case "deleteTable":
             tableController.tableDelete(chatId)
