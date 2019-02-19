@@ -13,7 +13,7 @@ class OrderController {
         let orderPromise
 
         // поиск заказа данного пользователя
-        const order = await Order.findOne({telegramId: userId})
+        const order = await Order.findOne({telegramId: userId, served: "waiting"})
         // поиск блюда в базе данных
         const meal = await Meal.findOne({uuid: mealUuid})
 
@@ -49,7 +49,7 @@ class OrderController {
     // удаление блюда из заказа
     async removeMeal(userId, mealUuid){
         // получение заказа из БД
-        const order = await Order.findOne({telegramId: userId})
+        const order = await Order.findOne({telegramId: userId, served: "waiting"})
 
         // поиск блюда в списке заказанных
         for (let index = 0; index < order.meals.length; index++) {
@@ -66,13 +66,13 @@ class OrderController {
     }
 
     // поиск заказа по id пользователя
-    findOrderById(userId){
-        return Order.findOne({telegramId: userId})
+    async findOrderById(userId){
+        return Order.findOne({telegramId: userId, served: "waiting"})
     }
 
     // подтверждение заказа
     async applyOrder(userId, location){
-        const order = await Order.findOne({telegramId: userId})
+        const order = await Order.findOne({telegramId: userId, served: "waiting"})
         let msg = "Вы еще ничего не заказали"
 
         // проверка на наличие заказа
@@ -81,14 +81,14 @@ class OrderController {
             if(order.meals.length > 0){
                 // проверка подтвержден ли заказ
                 if (order.location) {
-                    msg = "Вы уже сообщили свое местоположение, дождитесь, пока с Вами свяжется оператор"
+                    msg = "Вы уже сообщили свое местоположение, дождитесь, пока заказ будет подтвержден"
                     return msg
                 } else {
                     // подтверждение заказа
                     order.location = location
                     order.save()
     
-                    msg = "Местоположение успешно задано, дождитесь, пока с Вами свяжется оператор, чтобы подтвердить заказ"
+                    msg = "Местоположение успешно задано, дождитесь, пока менеджер подтвердит Ваш заказ"
                     return msg
                 }
             } else {
@@ -97,6 +97,49 @@ class OrderController {
         } else {
             return msg
         }
+    }
+
+    // заказ пользователя для менеджера
+    async orderList(userId){
+        // получение заказа из БД
+        const order = await Order.findOne({telegramId: userId, served: "waiting"})
+        let orderList = `Пользователь ${userId} заказал:\n`
+
+        // формирование списка заказа
+        order.meals.map(m => {
+            orderList = orderList + m.name + " " + m.price + "\n"
+        })
+
+        return orderList
+    }
+
+
+    // подтверждение заказа
+    async orderApply(userId){
+        // получение заказа из БД
+        const order = await Order.findOne({telegramId: userId, served: "waiting"})
+    
+        // отметка о выполнении заказа
+        order.served = "served"
+    
+        // сохранение изменений
+        order.save()
+
+        return "Заказ подтвержден"
+    }
+
+    // подтверждение заказа
+    async orderReject(userId){
+        // получение заказа из БД
+        const order = await Order.findOne({telegramId: userId, served: "waiting"})
+        
+        // отметка о выполнении заказа
+        order.served = "reject"
+        
+        // сохранение изменений
+        order.save()
+    
+        return "К сожалению, Ваш заказ не может быть выполнен. Свяжитесь с менеджером для уточнения причин."
     }
 }
 

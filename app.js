@@ -38,6 +38,26 @@ bot.on('message', async msg => {
     const chatId = msg.chat.id
 
     if(msg.location){
+        const orderApplyKeyboard = {
+            inline_keyboard: [
+                [
+                    {
+                        text: 'Подтвердить',
+                        callback_data: JSON.stringify({
+                            query: 'apply',
+                            userId: chatId
+                        })
+                    },
+                    {
+                        text: 'Отказать',
+                        callback_data: JSON.stringify({
+                            query: 'reject',
+                            userId: chatId
+                        })
+                    }
+                ]
+            ]
+        }
         const text = await orderController.applyOrder(chatId, msg.location)
         bot.sendMessage(chatId, text, {reply_markup: {
             resize_keyboard: true,
@@ -47,6 +67,8 @@ bot.on('message', async msg => {
                 ]
             ],
         }})
+        const listOrder = await orderController.orderList(chatId)
+        bot.sendMessage(config.MANAGER_CHAT_ID, listOrder, {reply_markup: orderApplyKeyboard})
     }
 
 })
@@ -88,9 +110,25 @@ bot.on('callback_query', async query => {
     }
 
     switch(data.query){
+        case "apply":
+            const orderApplyComplete = await orderController.orderApply(data.userId)
+            bot.sendMessage(data.userId, orderApplyComplete)
+            break
+        case "reject":
+            const orderReject = await orderController.orderReject(data.userId)
+            bot.sendMessage(data.userId, orderReject)
+            break
         case "menu":
             const keyboardMenu = await mealController.inlineMealTypesKeyboard()
             bot.editMessageText('Наше меню:', {chat_id:chatId, message_id:messageId, reply_markup:keyboardMenu})
+            bot.sendMessage(chatId, 'Для вызова главного меню нажмите "назад" или воспользуйтесь командой /start', {reply_markup: {
+                resize_keyboard: true,
+                keyboard: [
+                    [
+                        "/start"
+                    ]
+                ],
+            }})
             break
         case "yourOrder":
             const order = await orderController.findOrderById(chatId)

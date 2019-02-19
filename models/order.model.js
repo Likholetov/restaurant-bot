@@ -12,6 +12,10 @@ const OrderSchema = new Schema({
         type: [mealSchema],
         default: []
     },
+    served: {
+        type: String,
+        default: "waiting"
+    },
     location: {
         type: Schema.Types.Mixed
     }
