@@ -111,11 +111,13 @@ bot.on('callback_query', async query => {
 
     switch(data.query){
         case "apply":
-            const orderApplyComplete = await orderController.orderApply(data.userId)
+            const applyMessage = "Заказ подтвержден"
+            const orderApplyComplete = await orderController.orderStatus(data.userId, "served", applyMessage)
             bot.sendMessage(data.userId, orderApplyComplete)
             break
         case "reject":
-            const orderReject = await orderController.orderReject(data.userId)
+            const rejectMessage = "К сожалению, Ваш заказ не может быть выполнен. Свяжитесь с менеджером для уточнения причин."
+            const orderReject = await orderController.orderStatus(data.userId, "reject", rejectMessage)
             bot.sendMessage(data.userId, orderReject)
             break
         case "menu":

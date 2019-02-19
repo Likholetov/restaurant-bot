@@ -115,31 +115,17 @@ class OrderController {
 
 
     // подтверждение заказа
-    async orderApply(userId){
+    async orderStatus(userId, status, message){
         // получение заказа из БД
         const order = await Order.findOne({telegramId: userId, served: "waiting"})
     
         // отметка о выполнении заказа
-        order.served = "served"
+        order.served = status
     
         // сохранение изменений
         order.save()
 
-        return "Заказ подтвержден"
-    }
-
-    // подтверждение заказа
-    async orderReject(userId){
-        // получение заказа из БД
-        const order = await Order.findOne({telegramId: userId, served: "waiting"})
-        
-        // отметка о выполнении заказа
-        order.served = "reject"
-        
-        // сохранение изменений
-        order.save()
-    
-        return "К сожалению, Ваш заказ не может быть выполнен. Свяжитесь с менеджером для уточнения причин."
+        return message
     }
 }
 
