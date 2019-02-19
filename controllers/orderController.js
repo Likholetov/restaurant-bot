@@ -115,7 +115,7 @@ class OrderController {
 
 
     // подтверждение заказа
-    async orderStatus(userId, status, message){
+    async orderStatus(userId, status){
         // получение заказа из БД
         const order = await Order.findOne({telegramId: userId, served: "waiting"})
     
@@ -124,8 +124,6 @@ class OrderController {
     
         // сохранение изменений
         order.save()
-
-        return message
     }
 }
 

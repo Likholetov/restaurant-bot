@@ -111,14 +111,12 @@ bot.on('callback_query', async query => {
 
     switch(data.query){
         case "apply":
-            const applyMessage = "Заказ подтвержден"
-            const orderApplyComplete = await orderController.orderStatus(data.userId, "served", applyMessage)
-            bot.sendMessage(data.userId, orderApplyComplete)
+            orderController.orderStatus(data.userId, "served")
+            bot.sendMessage(data.userId, "Заказ подтвержден")
             break
         case "reject":
-            const rejectMessage = "К сожалению, Ваш заказ не может быть выполнен. Свяжитесь с менеджером для уточнения причин."
-            const orderReject = await orderController.orderStatus(data.userId, "reject", rejectMessage)
-            bot.sendMessage(data.userId, orderReject)
+            orderController.orderStatus(data.userId, "reject")
+            bot.sendMessage(data.userId, "К сожалению, Ваш заказ не может быть выполнен. Свяжитесь с менеджером для уточнения причин.")
             break
         case "menu":
             const keyboardMenu = await mealController.inlineMealTypesKeyboard()
